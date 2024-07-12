@@ -49,15 +49,17 @@ function showFps(ctx, dt) {
 ;
 ;
 export function createPlayer(position) {
+    const velocity = new Vector2();
     const movingForward = false;
     const movingBackward = false;
     const turningLeft = false;
     const turningRight = false;
-    const velocity = 2;
+    const speed = 2;
     const direction = Math.PI * 0.95;
     const turningVelocity = Math.PI;
     return { position,
         velocity,
+        speed,
         direction,
         turningVelocity,
         movingForward,
@@ -74,11 +76,28 @@ const map = [null, null, null, null, null, null, null, null, null, null,
     null, null, 1, null, null, null, null, null, null, null,
     null, null, null, null, null, null, null, null, null, null,
     null, null, null, null, null, null, null, null, null, null,
-    null, null, null, null, null, null, null, null, 1, null];
+    null, null, null, null, null, null, null, null, 1, null,
+    null, null, null, null, null, null, null, null, null, null];
 export function render(ctx, dt, player) {
     resetCanvas(ctx);
     showFps(ctx, dt);
     renderMiniMap(ctx, dt, player);
+}
+function canMoveThere(x, y, w, h) {
+    let x1 = Math.floor(x - w * 0.5);
+    let x2 = Math.floor(x + w * 0.5);
+    let y1 = Math.floor(y - h * 0.5);
+    let y2 = Math.floor(y + h * 0.5);
+    console.log(x1, x2, y1, y2);
+    for (let y = y1; y <= y2; y++) {
+        for (let x = x1; x <= x2; x++) {
+            console.log(map[y * MINI_GRID_SIZE + x]);
+            if (map[y * MINI_GRID_SIZE + x] !== null) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 function renderMiniMap(ctx, dt, player) {
     ctx.save();
@@ -111,7 +130,13 @@ function renderMiniMap(ctx, dt, player) {
     const playerWidth = cellWidth * 0.5;
     const playerHeight = cellHeight * 0.5;
     let angular = 0;
-    let lineal = 0;
+    player.velocity.scale(0);
+    if (player.movingForward) {
+        player.velocity.add(new Vector2().setPolar(player.direction, player.speed));
+    }
+    if (player.movingBackward) {
+        player.velocity.sub(new Vector2().setPolar(player.direction, player.speed));
+    }
     if (player.turningRight) {
         angular += player.turningVelocity;
     }
@@ -119,26 +144,19 @@ function renderMiniMap(ctx, dt, player) {
         angular -= player.turningVelocity;
     }
     player.direction = player.direction + angular * dt;
-    let ndir = new Vector2().setPolar(player.direction, player.velocity * dt);
-    if (player.movingForward) {
-        lineal += player.velocity;
-    }
-    if (player.movingBackward) {
-        lineal -= player.velocity;
-    }
-    const newPos = player.position.clone().add(ndir.scale(lineal));
-    const x = Math.floor(newPos.x);
-    const y = Math.floor(newPos.y);
-    if (map[y * MINI_GRID_SIZE + x] === null) {
-        player.position = newPos;
-    }
+    const newX = player.position.x + player.velocity.x * dt;
+    const newY = player.position.y + player.velocity.y * dt;
+    if (canMoveThere(newX, player.position.y, playerWidth / cellWidth, playerHeight / cellHeight))
+        player.position.x = newX;
+    if (canMoveThere(player.position.x, newY, playerWidth / cellWidth, playerHeight / cellHeight))
+        player.position.y = newY;
     ctx.fillStyle = "blue";
     ctx.fillRect(player.position.x * cellWidth - playerWidth / 2, player.position.y * cellHeight - playerHeight / 2, playerWidth, playerHeight);
     ctx.beginPath();
     ctx.strokeStyle = "red";
     let currentPos = player.position.clone();
     ctx.moveTo(currentPos.x * cellWidth, currentPos.y * cellHeight);
-    ndir = new Vector2().setPolar(player.direction);
+    let ndir = new Vector2().setPolar(player.direction);
     const lineTo = ndir.add(player.position);
     ctx.lineTo(lineTo.x * cellWidth, lineTo.y * cellHeight);
     ctx.stroke();
