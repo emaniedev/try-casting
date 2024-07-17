@@ -28,7 +28,7 @@ const CANVAS_WIDTH = 16 * FACTOR;
             }
         });
     }
-    let player = game.createPlayer(new game.Vector2(5.4, 5.7));
+    let player = game.createPlayer(new game.Vector2(5.4, 5.7), Math.PI * 0.4);
     window.addEventListener("keydown", (e) => {
         if (!e.repeat) {
             switch (e.code) {

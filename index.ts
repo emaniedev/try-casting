@@ -1,4 +1,3 @@
-
 const FACTOR = 30;
 const CANVAS_HEIGHT = 9*FACTOR;
 const CANVAS_WIDTH = 16*FACTOR;
@@ -13,7 +12,7 @@ const CANVAS_WIDTH = 16*FACTOR;
 	if (ctx == null) throw new Error("Context 2D not supported");
 	ctx.imageSmoothingEnabled = false;
 	ctx.fillStyle = "#181818";
-	//ctx.fillStyle = "red";
+	// ctx.fillStyle = "red";
 	ctx.fillRect(0,0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
 	let game = await import("./game.js");
@@ -33,7 +32,7 @@ const CANVAS_WIDTH = 16*FACTOR;
 	}
 	
 
-	let player = game.createPlayer(new game.Vector2(5.4,5.7));
+	let player = game.createPlayer(new game.Vector2(5.4,5.7), Math.PI*0.4);
 
 
 	window.addEventListener("keydown", (e) =>{
