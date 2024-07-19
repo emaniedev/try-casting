@@ -1,6 +1,7 @@
 const FACTOR = 30;
 const CANVAS_HEIGHT = 9*FACTOR;
 const CANVAS_WIDTH = 16*FACTOR;
+const MINI_GRID_SIZE = 10;
 
 
 (async ()=> {
@@ -16,6 +17,7 @@ const CANVAS_WIDTH = 16*FACTOR;
 	ctx.fillRect(0,0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
 	let game = await import("./game.js");
+	const {Vector2} = await import("./vector.js");
 	const isDev = window.location.hostname === "localhost";
 	if (isDev) {
 		const ws = new WebSocket("ws://localhost:6970");
@@ -32,7 +34,8 @@ const CANVAS_WIDTH = 16*FACTOR;
 	}
 	
 
-	let player = game.createPlayer(new game.Vector2(5.4,5.7), Math.PI*0.4);
+	let player = game.createPlayer(new Vector2(5.4,5.7), Math.PI*0.4);
+	const screen = game.createScreen(ctx, MINI_GRID_SIZE);
 
 
 	window.addEventListener("keydown", (e) =>{
@@ -59,7 +62,7 @@ const CANVAS_WIDTH = 16*FACTOR;
 		const delta = (timeStamp-prevTime)/1000;
 		const time = timeStamp/1000;
 		prevTime = timeStamp;
-		game.render(ctx, delta, player);
+		game.render(screen, delta, player);
 		window.requestAnimationFrame(frame);
 	};
 	
